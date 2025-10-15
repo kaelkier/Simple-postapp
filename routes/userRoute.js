@@ -13,6 +13,4 @@ router.get('/profile', protect, getProfile);
 
 router.patch('/profile', protect, upload.single('avatar'), updateProfile);
 
-// router.patch('/upload-avatar/:userId', protect, upload.single('image'));
-
 export const userRouter = router;

@@ -1,34 +1,33 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
+import cloudinary from '../utils/cloudinary.js';
 import fs from 'fs';
-import path from 'path';
 
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
-// Register
 export const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
         if (!name || !email || !password) {
-            return res.status(400).json({ message: 'semua field wajib diisi!' });
+            return res.status(400).json({ message: 'All fields are required' });
         };
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email sudah terdaftar!'});
+            return res.status(400).json({ message: 'User with this email already exists'});
         };
 
         const newUser = await User.create({ name, email, password });
 
         res.status(201).json({
-            message: 'Registrasi Berhasil',
+            message: 'Registration successful',
             user: { id: newUser._id, name: newUser.name, email: newUser.email },
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error saat registrasi', error: error.message});
+        res.status(500).json({ message: 'Server error during registration', error: error.message});
     }
 };
 
@@ -37,23 +36,23 @@ export const loginUser = async (req, res) => {
         const { email, password } = req.body;
 
         if(!email || !password) {
-            return res.status(400).json({ message: 'Email dan Password wajib diisi' });
+            return res.status(400).json({ message: 'Email dan password are required' });
         };
 
         const user = await User.findOne({ email });
         if(!user || user.password !== password) {
-            return res.status(401).json({ message: 'Email dan Password salah!'});
+            return res.status(401).json({ message: 'Invalid email or password'});
         };
 
         const token = generateToken(user._id);
 
         res.json({
-            message: 'Login berhasil',
+            message: 'Login successful',
             token,
             user: {id: user._id, name: user.name, email: user.email},
         });
     } catch (error) {
-        return res.status(500).json({ message: 'Error saat login', error: error.message });
+        return res.status(500).json({ message: 'Server error during login', error: error.message });
     }
 };
 
@@ -62,7 +61,7 @@ export const getProfile = async (req, res) => {
         const user = await User.findById(req.user.id).select('-password');
         res.json(user);
     } catch (error) {
-        return res.status(500).json({ message: 'Error saat ambil profile', error: error.message });
+        return res.status(500).json({ message: 'Failed to fetch user profile', error: error.message });
     }
 };
 
@@ -71,7 +70,7 @@ export const updateProfile = async (req, res) => {
         const user = await User.findById(req.user.id);
 
         if (!user) {
-        return res.status(400).json({ message: 'User tidak ditemukan' });
+        return res.status(400).json({ message: 'User not found' });
         }
 
         const { name, email, password } = req.body;
@@ -81,29 +80,35 @@ export const updateProfile = async (req, res) => {
         if (password) user.password = password;
 
         if (req.file) {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "user_avatars",
+        });
 
-        if (user.avatar && fs.existsSync(path.join('uploads', user.avatar))) {
-            fs.unlinkSync(path.join('uploads', user.avatar));
+        if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
         }
-        user.avatar = req.file.filename;
+
+        if (user.cloudinaryPublicId) {
+            await cloudinary.uploader.destroy(user.cloudinaryPublicId);
         }
+
+        user.avatar = result.secure_url;
+        user.cloudinaryPublicId = result.public_id;
+        };
 
         await user.save();
 
-        const fullAvatarUrl = user.avatar
-        ? `${req.protocol}://${req.get('host')}/uploads/${user.avatar}`
-        : null;
-
         res.json({
-        message: 'Profil berhasil di update',
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            avatar: fullAvatarUrl,
-        },
+            message: 'Profile updated successfully',
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                avatar: user.avatar,
+            },
         });
     } catch (error) {
-        return res.status(500).json({ message: 'Server Error', error: error.message });
+        console.error('Update profile error', error.response?.body || error);
+        return res.status(500).json({ message: 'Server error during profile update', error: error.message || error.toString });
     }
 };
