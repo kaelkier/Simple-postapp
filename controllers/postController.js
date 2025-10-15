@@ -1,16 +1,27 @@
 import Post from '../models/Post.js';
+import cloudinary from '../utils/cloudinary.js';
+import fs from 'fs';
 
 export const createPost = async (req, res) => {
     try {
-        const { content, image} = req.body;
+        const { content } = req.body;
 
-        if (!title || !content) {
+        if (!content || !req.file) {
             return res.status(400).json({ message: 'Title and content are required'});
-        }
+        };
 
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: "image_posts",
+        });
+
+        if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+        
         const post = await Post.create({
             content,
-            image,
+            image: result.secure_url,
+            imagePublicId: result.public_id,
             user: req.user.id,
         });
 
