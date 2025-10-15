@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 export const postSchema = new mongoose.Schema({
     content: { type: String },
     image: { type: String },
+    imagePublicId: { type: String },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
