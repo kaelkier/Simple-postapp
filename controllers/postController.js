@@ -49,3 +49,22 @@ export const getMyPosts = async (req, res) => {
     }
 };
 
+export const deleteMyPost = async (req, res) => {
+    try {
+        const post = await Post.findOne({ _id: req.params.id, user: req.user.id });
+        if(!post) {
+            return res.status(404).json({ message: 'Post not found'});
+        }
+
+        if (post.imagePublicId) {
+            await cloudinary.uploader.destroy(post.imagePublicId);
+        }
+
+        await post.deleteOne();
+
+        res.json({ message: 'Post removed' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete post', error: error.message });
+    }
+};
+
