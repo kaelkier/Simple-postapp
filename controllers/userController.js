@@ -131,3 +131,18 @@ export const updateProfile = async (req, res) => {
         return res.status(500).json({ message: 'Server error during profile update', error: error.message || error.toString });
     }
 };
+
+export const searchUser = async (req, res) => {
+    try {
+        const query = req.query.q || '';
+        const users = await User.find({
+            $or: [
+                { username: { $regex: query, $options: 'i'}},
+                { name: { $regex: query, $options: 'i'}},
+            ]
+        }).select('-password');
+        res.status(200).json(users);
+    } catch (error) {
+        return res.status(500).json({ message: 'Cannot find user', error: error.message });
+    }
+};
