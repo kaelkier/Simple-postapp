@@ -4,6 +4,9 @@ import cloudinary from '../utils/cloudinary.js';
 import fs from 'fs';
 import bcrypt from 'bcrypt';
 
+const defaultAvatar = 'https://res.cloudinary.com/dgl06pqcl/image/upload/v1760713012/user_g2rplj.png';
+const defaultAvatarPublicId = 'user_g2rplj';
+
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
@@ -107,7 +110,7 @@ export const updateProfile = async (req, res) => {
             fs.unlinkSync(req.file.path);
         }
 
-        if (user.avatarPublicId) {
+        if (user.avatarPublicId && user.avatarPublicId !== defaultAvatar) {
             await cloudinary.uploader.destroy(user.avatarPublicId);
         }
 
@@ -159,8 +162,8 @@ export const deleteAvatar = async (req, res) => {
             await cloudinary.uploader.destroy(user.avatarPublicId);
         }
 
-        user.avatar = null;
-        user.avatarPublicId = null;
+        user.avatar = defaultAvatar;
+        user.avatarPublicId = defaultAvatarPublicId;
 
         await user.save();
 
