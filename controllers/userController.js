@@ -107,12 +107,12 @@ export const updateProfile = async (req, res) => {
             fs.unlinkSync(req.file.path);
         }
 
-        if (user.cloudinaryPublicId) {
-            await cloudinary.uploader.destroy(user.cloudinaryPublicId);
+        if (user.avatarPublicId) {
+            await cloudinary.uploader.destroy(user.avatarPublicId);
         }
 
         user.avatar = result.secure_url;
-        user.cloudinaryPublicId = result.public_id;
+        user.avatarPublicId = result.public_id;
         };
 
         await user.save();
