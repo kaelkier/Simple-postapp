@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, loginUser, getProfile, updateProfile, searchUser } from '../controllers/userController.js';
+import { registerUser, loginUser, getProfile, updateProfile, searchUser, deleteAvatar } from '../controllers/userController.js';
 import { upload }  from '../middlewares/multerCloud.js';
 import { protect } from '../middlewares/authMiddleware.js';
 
@@ -14,5 +14,7 @@ router.get('/profile', protect, getProfile);
 router.patch('/profile', protect, upload.single('avatar'), updateProfile);
 
 router.get('/search/', protect, searchUser);
+
+router.delete('/profile', protect, deleteAvatar);
 
 export const userRouter = router;

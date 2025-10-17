@@ -146,3 +146,26 @@ export const searchUser = async (req, res) => {
         return res.status(500).json({ message: 'Cannot find user', error: error.message });
     }
 };
+
+export const deleteAvatar = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.avatarPublicId) {
+            await cloudinary.uploader.destroy(user.avatarPublicId);
+        }
+
+        user.avatar = null;
+        user.avatarPublicId = null;
+
+        await user.save();
+
+        res.status(200).json({ message: 'Avatar delete successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed delete avatar', error: error.message });
+    }
+};
