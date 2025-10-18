@@ -80,7 +80,13 @@ export const loginUser = async (req, res) => {
 
 export const getProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
+        const userId = req.params.id || req.user.id;
+        const user = await User.findById(userId).select('-password -email');
+
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+        }
+
         res.json(user);
     } catch (error) {
         return res.status(500).json({ message: 'Failed to fetch user profile', error: error.message });

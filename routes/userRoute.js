@@ -11,6 +11,8 @@ router.post('/login', loginUser);
 
 router.get('/profile', protect, getProfile);
 
+router.get('/profile/:id', getProfile);
+
 router.patch('/profile', protect, upload.single('avatar'), updateProfile);
 
 router.get('/search/', protect, searchUser);
