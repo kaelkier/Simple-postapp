@@ -4,11 +4,11 @@ import validator from 'validator';
 export const userSchema = new mongoose.Schema({
     avatar: {
         type: String,
-        default: 'https://res.cloudinary.com/dgl06pqcl/image/upload/v1760713012/user_g2rplj.png'
+        default: 'https://res.cloudinary.com/dgl06pqcl/image/upload/v1760942622/default-avatar_ugaeii.jpg'
     },
     avatarPublicId: {
         type: String,
-        default: 'user_g2rplj'
+        default: 'default-avatar_ugaeii'
     },
     username: {
         type: String,
