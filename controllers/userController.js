@@ -4,8 +4,8 @@ import cloudinary from '../utils/cloudinary.js';
 import fs from 'fs';
 import bcrypt from 'bcrypt';
 
-const defaultAvatar = 'https://res.cloudinary.com/dgl06pqcl/image/upload/v1760713012/user_g2rplj.png';
-const defaultAvatarPublicId = 'user_g2rplj';
+const defaultAvatar = 'https://res.cloudinary.com/dgl06pqcl/image/upload/v1760942622/default-avatar_ugaeii.jpg';
+const defaultAvatarPublicId = 'default-avatar_ugaeii';
 
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -107,6 +107,10 @@ export const updateProfile = async (req, res) => {
         if (email) user.email = email;
         if (password) user.password = password;
 
+        if (user.avatarPublicId && user.avatarPublicId !== defaultAvatarPublicId) {
+            await cloudinary.uploader.destroy(user.avatarPublicId);
+        }
+
         if (req.file) {
         const result = await cloudinary.uploader.upload(req.file.path, {
             folder: "user_avatars",
@@ -114,10 +118,6 @@ export const updateProfile = async (req, res) => {
 
         if (fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
-        }
-
-        if (user.avatarPublicId && user.avatarPublicId !== defaultAvatar) {
-            await cloudinary.uploader.destroy(user.avatarPublicId);
         }
 
         user.avatar = result.secure_url;
