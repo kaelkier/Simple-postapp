@@ -160,7 +160,7 @@ export const searchUser = async (req, res) => {
                 { username: { $regex: query, $options: 'i'}},
                 { name: { $regex: query, $options: 'i'}},
             ]
-        }).select('-password');
+        }).select('-email -avatarPublicId');
         res.status(200).json(users);
     } catch (error) {
         return res.status(500).json({ message: 'Cannot find user', error: error.message });
