@@ -68,7 +68,7 @@ export const loginUser = async (req, res) => {
 
         const token = generateToken(user._id);
 
-        res.json({
+        res.status(200).json({
             message: 'Login successful',
             token,
             user: {id: user._id, name: user.name, email: user.email},
@@ -98,7 +98,7 @@ export const getProfile = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json(user);
+        res.status(200).json(user);
     } catch (error) {
         return res.status(500).json({ message: 'Failed to fetch user profile', error: error.message });
     }
@@ -137,7 +137,7 @@ export const updateProfile = async (req, res) => {
 
         await user.save();
 
-        res.json({
+        res.status(200).json({
             message: 'Profile updated successfully',
             user: {
                 id: user.id,
