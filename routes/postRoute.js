@@ -9,7 +9,7 @@ router.post('/', protect, upload.single('image'), createPost);
 
 router.get('/', protect, getAllPosts);
 
-router.get('/:me', protect, getMyPosts);
+router.get('/me', protect, getMyPosts);
 
 router.delete('/:id', protect, deleteMyPost);
 
