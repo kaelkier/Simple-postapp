@@ -80,11 +80,22 @@ export const loginUser = async (req, res) => {
 
 export const getProfile = async (req, res) => {
     try {
-        const userId = req.params.id || req.user.id;
-        const user = await User.findById(userId).select('-password -email');
+        const userId = req.params.id || req.user?.id;
+
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        const OwnProfile = req.user && req.user.id === userId;
+
+        const selectField = OwnProfile
+            ? '-avatarPublicId'
+            : '-email -avatarPublicId';
+
+        const user = await User.findById(userId).select(selectField);
 
         if (!user) {
-            res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         res.json(user);
