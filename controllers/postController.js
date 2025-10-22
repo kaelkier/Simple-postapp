@@ -42,7 +42,7 @@ export const createPost = async (req, res) => {
 export const getAllPosts = async (req, res) => {
     try{
         const posts = await Post.find().populate( 'user', 'name avatar');
-        res.json(posts);
+        res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: 'Failed to get post', error: error.message });
     }
@@ -51,7 +51,7 @@ export const getAllPosts = async (req, res) => {
 export const getMyPosts = async (req, res) => {
     try {
         const posts = await Post.find({ user: req.user.id });
-        res.json(posts);
+        res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: 'Failed to get user post', error: error.message });
     }
@@ -70,7 +70,7 @@ export const deleteMyPost = async (req, res) => {
 
         await post.deleteOne();
 
-        res.json({ message: 'Post removed' });
+        res.status(200).json({ message: 'Post removed' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete post', error: error.message });
     }
