@@ -2,12 +2,13 @@ import express from 'express';
 import { registerUser, loginUser, getProfile, updateProfile, searchUser, deleteAvatar } from '../controllers/userController.js';
 import { upload }  from '../middlewares/multerCloud.js';
 import { protect } from '../middlewares/authMiddleware.js';
+import { loginLimiter, registerLimiter } from '../middlewares/rateLimiter.js';
 
 const router = express.Router();
 
-router.post('/register', registerUser);
+router.post('/register', registerLimiter,registerUser);
 
-router.post('/login', loginUser);
+router.post('/login', loginLimiter, loginUser);
 
 router.get('/profile', protect, getProfile);
 
