@@ -41,7 +41,7 @@ export const createPost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
     try{
-        const posts = await Post.find().populate( 'user', 'name avatar');
+        const posts = await Post.find().populate( 'user', 'name username avatar').select('-imagePublicId');
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: 'Failed to get post', error: error.message });
